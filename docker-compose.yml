@@ -1,0 +1,23 @@
+  version: '3'
+  services:
+    db-product:
+      container_name: db-product
+      image: postgres:15.2
+      restart: unless-stopped
+      environment:
+        POSTGRES_DB: product
+        POSTGRES_USER: valentina
+        POSTGRES_PASSWORD: valentina
+      ports:
+        - 5431:5432
+
+    db-order:
+      container_name: db-order
+      image: postgres:15.2
+      restart: unless-stopped
+      environment:
+        POSTGRES_DB: orderdb
+        POSTGRES_USER: valentina
+        POSTGRES_PASSWORD: valentina
+      ports:
+        - 5432:5432
