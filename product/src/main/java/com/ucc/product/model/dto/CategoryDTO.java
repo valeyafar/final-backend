@@ -1,5 +1,6 @@
 package com.ucc.product.model.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryDTO implements Serializable {
+
+    @NotNull
     private Long id;
 }

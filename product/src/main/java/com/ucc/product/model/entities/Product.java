@@ -20,14 +20,15 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombre;
-    private Double precio;
-    private String descripcion;
+    private String name;
+    private Double price;
+    private String description;
     private Integer stock;
     private Boolean status;
 
     //Muchos productos tienen una categoría
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+
     //@JsonBackReference
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;

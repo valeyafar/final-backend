@@ -1,8 +1,10 @@
 package com.ucc.product.service;
 
-
+import com.ucc.product.exceptions.Category.CategoryNotExistException;
 import com.ucc.product.exceptions.Product.ProductNotExistException;
+import com.ucc.product.model.dto.CategoryInfoDTO;
 import com.ucc.product.model.dto.ProductInfoDTO;
+import com.ucc.product.model.entities.Category;
 import com.ucc.product.model.entities.Product;
 import com.ucc.product.model.dto.ProductDTO;
 import com.ucc.product.model.mappers.ProductsMappers;
@@ -23,41 +25,38 @@ public class ProductService {
     private final ProductRepository productRepository; //Inyeccion del repositorio en nuestro servicio
     private final ProductsMappers productsMappers;
 
-
-
     //Metodo para obtener todos los productos guardados
     public List<Product> getAllProducts() {
         return  productRepository.findAll();
     }
 
-    //Metodo para obtener productos por id
-    /*public Product getProductById(Long id) {
-        return productRepository.findById(id).orElse(null);
-    }*/
-
-    public Product getProductById(Long id){
-        Optional<Product> productOptional = productRepository.findById(id);
-        if (productOptional.isEmpty()){
-            throw new ProductNotExistException("No se encontró el producto con el id: " + id);
-        }else {
-            return productOptional.get();
-        }
+    public List<ProductInfoDTO> getAllInfoProducts(){
+        return productRepository.findAll()
+                .stream()
+                .map(productEntity -> new ProductInfoDTO(productEntity.getId(), productEntity.getName(), productEntity.getCategory()))
+                .collect(Collectors.toList());
     }
 
-    //Metodo para crear un producto
-    /*public void createProduct(Product product){
-        productRepository.save(product);
+    //Metodo para obtener los productos por id
+    public ProductInfoDTO getProductInfoById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotExistException("No existe el producto con ID " + id));
+
+        return productsMappers.productEntityToInfoDTO(product);
+    }
+
+    /*public List<Product> getProductsByPriceDesc() {
+        return productRepository.findAllByOrderByPriceDesc();
     }*/
 
-    //Metodo para crear un producto con DTO sin mapper
-    /*public ResponseEntity<Void> newProduct(ProductDTO productDTO) {
-        Product productEntity = new Product();
-        productEntity.setNombre(productDTO.getNombre());
-        productEntity.setPrecio(productDTO.getPrecio());
-        productEntity.setStatus(Boolean.TRUE);
-        productRepository.save(productEntity);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }*/
+    public List<ProductInfoDTO> getProductsByPriceDesc() {
+        return productRepository.findAllByOrderByPriceDesc()
+                .stream()
+                .map(productsMappers::productEntityToInfoDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
     //Metodo para crear un producto con DTO con mapper
     public ResponseEntity<Void> newProduct(ProductDTO productDTO) {
@@ -67,44 +66,25 @@ public class ProductService {
     }
 
     //Metodo para actualizar un producto
-    public Product updateProduct(Long id, Product productDetails) {
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null) {
-            return null;
-        }
+    public Product updateProduct(Long id, ProductDTO dto) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotExistException("No existe el producto con ID " + id));
 
-        product.setNombre(productDetails.getNombre());
-        product.setPrecio(productDetails.getPrecio());
-        product.setDescripcion(productDetails.getDescripcion());
-        product.setStock(productDetails.getStock());
-        product.setStatus(productDetails.getStatus());
+        product.setName(dto.getName());
+        product.setPrice(dto.getPrice());
+        product.setDescription(dto.getDescription());
+        product.setStock(dto.getStock());
 
         return productRepository.save(product);
     }
 
     //Metodo para eliminar un producto
-    public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
+    public ResponseEntity<Object> deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotExistException("No existe el producto con ID " + id));
+
+        productRepository.delete(product);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-    public List<ProductInfoDTO> getAllInfoProducts(){
-        return productRepository.findAll()
-                .stream()
-                .map(productEntity -> new ProductInfoDTO(productEntity.getId(), productEntity.getNombre(), productEntity.getCategory()))
-                .collect(Collectors.toList());
-    }
-
-
-
-    /*
-     public  Product save (Product product) {
-        return productRepository.save(product);
-    }
-    */
-
-    public List<Product> getProductsByPriceDesc() {
-        return productRepository.findAllByOrderByPriceDesc();
-    }
-
 
 }

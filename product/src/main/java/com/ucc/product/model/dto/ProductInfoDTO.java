@@ -14,13 +14,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ProductInfoDTO  implements Serializable {
     private Long id;
-    private String nombre;
+    private String name;
 
     private CategoryInfoDTO categoryInfoDTO;
 
-    public ProductInfoDTO(Long id, String nombre, Category category) {
+    public ProductInfoDTO(Long id, String name, Category category) {
         this.id = id;
-        this.nombre = nombre;
+        this.name = name;
         if (category != null) {
             CategoryInfoDTO categoryInfoDTOAUX = new CategoryInfoDTO();
             categoryInfoDTOAUX.setName(category.getName());

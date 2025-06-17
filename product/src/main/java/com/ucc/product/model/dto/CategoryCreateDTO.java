@@ -1,21 +1,17 @@
 package com.ucc.product.model.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class CategoryInfoDTO implements Serializable {
-    private Long id;
+@NoArgsConstructor
+public class CategoryCreateDTO {
+
+    @NotBlank(message = "El nombre no debe estar vacio")
     private String name;
-    private boolean status;
-
 }
-
-
