@@ -59,6 +59,7 @@ public class ProductsMappers {
         ProductInfoDTO dto = new ProductInfoDTO();
         dto.setId(productEntity.getId());
         dto.setName(productEntity.getName());
+        dto.setStock(productEntity.getStock());
 
         if (productEntity.getCategory() != null) {
             CategoryInfoDTO categoryInfo = new CategoryInfoDTO();

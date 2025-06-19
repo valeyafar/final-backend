@@ -75,4 +75,14 @@ public class ProductController {
         return productService.deleteProduct(id);
     }
 
+    @PutMapping("/{id}/discount-stock")
+    public ResponseEntity<Void> discountStock(
+            @PathVariable Long id,
+            @RequestParam int quantity
+    ) {
+        productService.discountStock(id, quantity);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

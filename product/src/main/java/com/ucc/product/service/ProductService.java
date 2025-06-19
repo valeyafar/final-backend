@@ -87,4 +87,17 @@ public class ProductService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    public void discountStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotExistException("No existe el producto con ID " + productId));
+
+        if (product.getStock() < quantity) {
+            throw new IllegalArgumentException("Stock insuficiente para el producto con ID " + productId);
+        }
+
+        product.setStock(product.getStock() - quantity);
+        productRepository.save(product);
+    }
+
+
 }

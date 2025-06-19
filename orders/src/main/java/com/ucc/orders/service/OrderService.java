@@ -1,6 +1,6 @@
 package com.ucc.orders.service;
 
-//import com.ucc.orders.client.ProductClient;
+import com.ucc.orders.client.ProductClient;
 import com.ucc.orders.exceptions.orders.OrderNotExistException;
 import com.ucc.orders.exceptions.products.InsufficientStockException;
 import com.ucc.orders.exceptions.products.ProductNotFoundException;
@@ -25,10 +25,10 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrdersMappers ordersMappers;
-    private final RestTemplate restTemplate; //Consultar productos por ID
-    //private final ProductClient productClient;
+    //private final RestTemplate restTemplate; //Consultar productos por ID
+    private final ProductClient productClient;
 
-    private final String productServiceUrl = "http://localhost:8080/products";
+    //private final String productServiceUrl = "http://localhost:8080/products";
     //private final String productServiceUrl = "http://localhost:8080/products";
 
 
@@ -59,7 +59,7 @@ public class OrderService {
         }
     }*/
 
-    public OrderInfoDTO createOrder(OrderDTO dto) {
+    /*public OrderInfoDTO createOrder(OrderDTO dto) {
         // 1. Consultar producto al microservicio de productos
         ProductInfoDTO product = getProductById(dto.getProductID());
 
@@ -75,15 +75,45 @@ public class OrderService {
 
         // 4. Devolver DTO
         return ordersMappers.toDTO(saved);
+    }*/
+    public OrderInfoDTO createOrder(OrderDTO dto) {
+        // 1. Consultar producto al microservicio de productos
+        ProductInfoDTO product = getProductById(dto.getProductID());
+
+        // 2. Validar stock
+        if (product.getStock() < dto.getQuantity()) {
+            throw new InsufficientStockException("Producto sin stock suficiente. Stock disponible: "
+                    + product.getStock() + ", solicitado: " + dto.getQuantity());
+        }
+
+        // 3. Crear y guardar orden
+        Order order = ordersMappers.ordersDTOToEntity(dto);
+        Order saved = orderRepository.save(order);
+
+        // 4. Descontar stock (solo si se creó la orden con éxito)
+        productClient.discountStock(dto.getProductID(), dto.getQuantity());
+
+        // 5. Devolver DTO
+        return ordersMappers.toDTO(saved);
     }
 
-    private ProductInfoDTO getProductById(Long id) {
+
+    /*private ProductInfoDTO getProductById(Long id) {
         try {
             return restTemplate.getForObject(productServiceUrl + "/" + id, ProductInfoDTO.class);
         } catch (Exception e) {
             throw new ProductNotFoundException("Producto con ID " + id + " no encontrado");
         }
+    }*/
+
+    private ProductInfoDTO getProductById(Long id) {
+        try {
+            return productClient.getProductById(id);
+        } catch (Exception e) {
+            throw new ProductNotFoundException("Producto con ID " + id + " no encontrado");
+        }
     }
+
 
 
 

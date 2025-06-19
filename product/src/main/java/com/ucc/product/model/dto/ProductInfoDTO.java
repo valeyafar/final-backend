@@ -15,6 +15,7 @@ import java.io.Serializable;
 public class ProductInfoDTO  implements Serializable {
     private Long id;
     private String name;
+    private int stock;
 
     private CategoryInfoDTO categoryInfoDTO;
 
