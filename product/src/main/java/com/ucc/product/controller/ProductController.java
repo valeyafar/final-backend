@@ -84,5 +84,12 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/{id}/increase-stock")
+    public ResponseEntity<Void> increaseStock(@PathVariable Long id, @RequestParam int quantity) {
+        productService.increaseStock(id, quantity);
+        return ResponseEntity.ok().build();
+    }
+
+
 
 }

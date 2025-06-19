@@ -99,5 +99,13 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    public void increaseStock(Long id, int quantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotExistException("Producto no encontrado"));
+        product.setStock(product.getStock() + quantity);
+        productRepository.save(product);
+    }
+
+
 
 }

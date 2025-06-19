@@ -165,6 +165,20 @@ public class ProductClient {
             throw new RuntimeException("Error al descontar stock: " + e.getMessage());
         }
     }
+
+    public void increaseStock(Long productId, int quantity) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth(username, password);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            String url = productServiceUrl + "/" + productId + "/increase-stock?quantity=" + quantity;
+            restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al devolver stock: " + e.getMessage());
+        }
+    }
+
 }
 
 

@@ -151,7 +151,7 @@ public class OrderService {
         return ordersMappers.toDTO(updated);
     }*/
 
-    public OrderInfoDTO updateOrder(Long id, OrderDTO dto) {
+    /*public OrderInfoDTO updateOrder(Long id, OrderDTO dto) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotExistException("No existe la orden con ID " + id));
 
@@ -167,15 +167,60 @@ public class OrderService {
 
         Order updated = orderRepository.save(order);
         return ordersMappers.toDTO(updated);
+    }*/
+
+    public OrderInfoDTO updateOrder(Long id, OrderDTO dto) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotExistException("No existe la orden con ID " + id));
+
+        ProductInfoDTO product = getProductById(dto.getProductID());
+
+        int diferencia = dto.getQuantity() - order.getQuantity(); // nueva - vieja
+
+        // Si la cantidad nueva es mayor, hay que verificar stock adicional
+        if (diferencia > 0) {
+            if (product.getStock() < diferencia) {
+                throw new InsufficientStockException("Stock insuficiente para actualizar la orden. Stock disponible: "
+                        + product.getStock() + ", adicional solicitado: " + diferencia);
+            }
+            productClient.discountStock(dto.getProductID(), diferencia);
+        }
+
+        // Si querés devolver stock al reducir la cantidad (opcional)
+        else if (diferencia < 0) {
+            productClient.increaseStock(dto.getProductID(), -diferencia);
+
+
+        }
+
+        order.setProductID(dto.getProductID());
+        order.setQuantity(dto.getQuantity());
+
+        Order updated = orderRepository.save(order);
+        return ordersMappers.toDTO(updated);
     }
 
 
-    public ResponseEntity<Object> deleteOrder(Long id) {
+
+    /*public ResponseEntity<Object> deleteOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotExistException("No existe el producto con ID " + id));
 
         orderRepository.delete(order);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }*/
+
+    public ResponseEntity<Object> deleteOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotExistException("No existe la orden con ID " + id));
+
+        // Devolver el stock al eliminar la orden
+        productClient.increaseStock(order.getProductID(), order.getQuantity());
+
+        orderRepository.delete(order);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 
 }
