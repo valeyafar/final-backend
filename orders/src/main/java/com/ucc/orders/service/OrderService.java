@@ -25,87 +25,28 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrdersMappers ordersMappers;
-    //private final RestTemplate restTemplate; //Consultar productos por ID
     private final ProductClient productClient;
 
-    //private final String productServiceUrl = "http://localhost:8080/products";
-    //private final String productServiceUrl = "http://localhost:8080/products";
 
-
-
-    /*public OrderInfoDTO createOrder(OrderDTO dto) {
-        // 1. Consultar producto al microservicio de productos
-        ProductInfoDTO product = productClient.getProductById(dto.getProductID());
-
-        // 2. Validar stock
-        if (product.getStock() < dto.getQuantity()) {
-            throw new InsufficientStockException("Producto sin stock suficiente. Stock disponible: "
-                    + product.getStock() + ", solicitado: " + dto.getQuantity());
-        }
-
-        // 3. Crear y guardar orden
-        Order order = ordersMappers.ordersDTOToEntity(dto);
-        Order saved = orderRepository.save(order);
-
-        // 4. Devolver DTO
-        return ordersMappers.toDTO(saved);
-    }
-
-    private ProductInfoDTO getProductInfo(Long id) {
-        try {
-            return productClient.getProductById(id);
-        } catch (Exception e) {
-            throw new ProductNotFoundException("Producto con ID " + id + " no encontrado");
-        }
-    }*/
-
-    /*public OrderInfoDTO createOrder(OrderDTO dto) {
-        // 1. Consultar producto al microservicio de productos
-        ProductInfoDTO product = getProductById(dto.getProductID());
-
-        // 2. Validar stock
-        if (product.getStock() < dto.getQuantity()) {
-            throw new InsufficientStockException("Producto sin stock suficiente. Stock disponible: "
-                    + product.getStock() + ", solicitado: " + dto.getQuantity());
-        }
-
-        // 3. Crear y guardar orden
-        Order order = ordersMappers.ordersDTOToEntity(dto);
-        Order saved = orderRepository.save(order);
-
-        // 4. Devolver DTO
-        return ordersMappers.toDTO(saved);
-    }*/
+    //Metodo para crear orden y consultar al microservico de productos
     public OrderInfoDTO createOrder(OrderDTO dto) {
-        // 1. Consultar producto al microservicio de productos
+
         ProductInfoDTO product = getProductById(dto.getProductID());
 
-        // 2. Validar stock
         if (product.getStock() < dto.getQuantity()) {
             throw new InsufficientStockException("Producto sin stock suficiente. Stock disponible: "
                     + product.getStock() + ", solicitado: " + dto.getQuantity());
         }
 
-        // 3. Crear y guardar orden
         Order order = ordersMappers.ordersDTOToEntity(dto);
         Order saved = orderRepository.save(order);
 
-        // 4. Descontar stock (solo si se creó la orden con éxito)
         productClient.discountStock(dto.getProductID(), dto.getQuantity());
 
-        // 5. Devolver DTO
         return ordersMappers.toDTO(saved);
     }
 
-
-    /*private ProductInfoDTO getProductById(Long id) {
-        try {
-            return restTemplate.getForObject(productServiceUrl + "/" + id, ProductInfoDTO.class);
-        } catch (Exception e) {
-            throw new ProductNotFoundException("Producto con ID " + id + " no encontrado");
-        }
-    }*/
-
+    //Metodo para obtener productos
     private ProductInfoDTO getProductById(Long id) {
         try {
             return productClient.getProductById(id);
@@ -114,10 +55,7 @@ public class OrderService {
         }
     }
 
-
-
-
-
+    //Metodo para obtener ordenes
     public List <OrderInfoDTO> getOrdersDTO(){
         return orderRepository.findAll()
                 .stream()
@@ -125,6 +63,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    //Metodo para obtener ordenes por id
     public OrderInfoDTO getOrderInfoById(Long id){
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotExistException("No existe el producto con ID " + id));
@@ -132,43 +71,7 @@ public class OrderService {
     }
 
 
-    /*public OrderInfoDTO updateOrder(Long id, OrderDTO dto) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotExistException("No existe la orden con ID " + id));
-
-        ProductInfoDTO product = getProductInfo(dto.getProductID());
-
-        if (product.getStock() < dto.getQuantity()) {
-            throw new InsufficientStockException("Producto sin stock suficiente. Stock disponible: "
-                    + product.getStock() + ", solicitado: " + dto.getQuantity());
-        }
-
-
-        order.setProductID(dto.getProductID());
-        order.setQuantity(dto.getQuantity());
-
-        Order updated = orderRepository.save(order);
-        return ordersMappers.toDTO(updated);
-    }*/
-
-    /*public OrderInfoDTO updateOrder(Long id, OrderDTO dto) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotExistException("No existe la orden con ID " + id));
-
-        ProductInfoDTO product = getProductById(dto.getProductID());
-        if (product.getStock() < dto.getQuantity()) {
-            throw new InsufficientStockException("Producto sin stock suficiente. Stock disponible: "
-                    + product.getStock() + ", solicitado: " + dto.getQuantity());
-        }
-
-
-        order.setProductID(dto.getProductID());
-        order.setQuantity(dto.getQuantity());
-
-        Order updated = orderRepository.save(order);
-        return ordersMappers.toDTO(updated);
-    }*/
-
+    //Metodo para actualizar ordenes
     public OrderInfoDTO updateOrder(Long id, OrderDTO dto) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotExistException("No existe la orden con ID " + id));
@@ -177,7 +80,7 @@ public class OrderService {
 
         int diferencia = dto.getQuantity() - order.getQuantity(); // nueva - vieja
 
-        // Si la cantidad nueva es mayor, hay que verificar stock adicional
+        // verificar stock
         if (diferencia > 0) {
             if (product.getStock() < diferencia) {
                 throw new InsufficientStockException("Stock insuficiente para actualizar la orden. Stock disponible: "
@@ -186,7 +89,6 @@ public class OrderService {
             productClient.discountStock(dto.getProductID(), diferencia);
         }
 
-        // Si querés devolver stock al reducir la cantidad (opcional)
         else if (diferencia < 0) {
             productClient.increaseStock(dto.getProductID(), -diferencia);
 
@@ -202,14 +104,7 @@ public class OrderService {
 
 
 
-    /*public ResponseEntity<Object> deleteOrder(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotExistException("No existe el producto con ID " + id));
-
-        orderRepository.delete(order);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }*/
-
+    //Metodo para obtener eliminar ordenes
     public ResponseEntity<Object> deleteOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotExistException("No existe la orden con ID " + id));
@@ -220,7 +115,6 @@ public class OrderService {
         orderRepository.delete(order);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 
 
 }

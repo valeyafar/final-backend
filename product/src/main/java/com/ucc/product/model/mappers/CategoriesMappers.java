@@ -28,6 +28,7 @@ public class CategoriesMappers {
     //Category a CategoryInfoDTO
     public CategoryInfoDTO categoryEntityToInfoDTO(Category category) {
         CategoryInfoDTO dto = new CategoryInfoDTO();
+        dto.setId(category.getId());
         dto.setName(category.getName());
         dto.setStatus(category.getStatus());
         return dto;

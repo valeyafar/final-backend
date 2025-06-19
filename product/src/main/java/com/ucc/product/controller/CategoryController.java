@@ -25,27 +25,28 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final CategoriesMappers categoriesMappers;
 
+    //Endpoint para obtener todas las categorias (entidad)
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Category> getCategories() {
         return categoryService.getCategories();
     }
 
+    //Endpoin para obtener todas las categorias con dto
     @GetMapping("/info")
     @ResponseStatus(HttpStatus.OK)
     public List<CategoryInfoDTO> getCategoriesDTO() {
         return categoryService.getAllInfoCategories();
     }
 
-
+    //Endpoin para obtener por id
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CategoryInfoDTO getCategoryById(@PathVariable Long id) {
         return categoryService.getCategoryById(id);
     }
 
-
-
+    //Endpoint para crear categoria
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> newCategory(@Valid @RequestBody CategoryCreateDTO categoryDTO) {
@@ -53,12 +54,14 @@ public class CategoryController {
         return categoryService.newCategory(category);
     }
 
+    //Endpoint para actualizar una categoria
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryCreateDTO dto) {
         return categoryService.updateCategory(id, dto);
     }
 
+    //Endpoint para eliminar una categoria
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Object> deleteCategory(@PathVariable Long id) {

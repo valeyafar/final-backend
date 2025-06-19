@@ -22,13 +22,14 @@ public class ProductController {
         this.productService = productService;
     }
 
-    //Endpoint para obtener todos los productos
+    //Endpoint para obtener todos los productos (entidad)
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Product> getProduct() {
         return productService.getAllProducts();
     }
 
+    //Endpoin para obtener todos los productos con dto
     @GetMapping("/info")
     @ResponseStatus(HttpStatus.OK)
     public List<ProductInfoDTO> getProductsDTO(){
@@ -42,12 +43,7 @@ public class ProductController {
         return productService.getProductInfoById(id);
     }
 
-    /*@GetMapping("/price")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Product> getProductsByPrice(){
-        return productService.getProductsByPriceDesc();
-    }*/
-
+    //Endpoint para obtener productos ordenados por precio desc
     @GetMapping("/price")
     @ResponseStatus(HttpStatus.OK)
     public List<ProductInfoDTO> getProductsByPrice() {
@@ -55,7 +51,7 @@ public class ProductController {
     }
 
 
-    //Endpoint para crear un objeto usando DTO
+    //Endpoint para crear un producto
     @PostMapping
     public ResponseEntity<Void> newProducts(@Valid @RequestBody ProductDTO product) {
         return productService.newProduct(product);
@@ -75,6 +71,7 @@ public class ProductController {
         return productService.deleteProduct(id);
     }
 
+    //Endpoin para descontar stock
     @PutMapping("/{id}/discount-stock")
     public ResponseEntity<Void> discountStock(
             @PathVariable Long id,
@@ -84,12 +81,12 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    //Endpoin para aumentar stock
     @PutMapping("/{id}/increase-stock")
     public ResponseEntity<Void> increaseStock(@PathVariable Long id, @RequestParam int quantity) {
         productService.increaseStock(id, quantity);
         return ResponseEntity.ok().build();
     }
-
 
 
 }

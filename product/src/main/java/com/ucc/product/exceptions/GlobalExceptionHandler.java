@@ -16,6 +16,7 @@ import java.util.Optional;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    //Error producto no existe
     @ExceptionHandler(ProductNotExistException.class)
     public ResponseEntity<ErrorMessageDTO> productNotExist(HttpServletRequest request, ProductNotExistException ex){
         ErrorMessageDTO errorMessageDTO = new ErrorMessageDTO(999, ex.getMessage(), request.getRequestURI());
@@ -43,14 +44,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    /*@ExceptionHandler(ProductNotExistException.class)
-    public ResponseEntity<ErrorMessageDTO> handleProductNotFound(
-            ProductNotExistException ex,
-            HttpServletRequest request) {
-        ErrorMessageDTO error = new ErrorMessageDTO(404, ex.getMessage(), request.getRequestURI());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }*/
-
+    //Error categoria no encontrada
     @ExceptionHandler(CategoryNotExistException.class)
     public ResponseEntity<ErrorMessageDTO> categoryNotFound(
             CategoryNotExistException ex,

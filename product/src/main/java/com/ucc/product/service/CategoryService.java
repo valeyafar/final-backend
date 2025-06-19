@@ -25,11 +25,12 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoriesMappers categoriesMappers;
 
-    //Metodo para obtener todos las categorias guardadas
+    //Metodo para obtener todos las categorias guardadas (entidad)
     public List<Category> getCategories() {
         return  categoryRepository.findAll();
     }
 
+    //Metodo para obtener todos las categorias guardadas (dto)
     public List<CategoryInfoDTO> getAllInfoCategories() {
         return categoryRepository.findAll()
                 .stream()
@@ -46,12 +47,13 @@ public class CategoryService {
     }
 
 
+    //Metodo para crear categoria
     public ResponseEntity<Object> newCategory(Category category) {
         categoryRepository.save(category);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-
+    //Metodo para actualizar categoria
     public ResponseEntity<Object> updateCategory(Long id, CategoryCreateDTO dto) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotExistException("No existe la categoría con ID " + id));
@@ -62,7 +64,7 @@ public class CategoryService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
+    //Metodo para eliminar categoria
     public ResponseEntity<Object> deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotExistException("No existe la categoría con ID " + id));

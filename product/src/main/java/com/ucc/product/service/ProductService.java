@@ -8,6 +8,7 @@ import com.ucc.product.model.entities.Category;
 import com.ucc.product.model.entities.Product;
 import com.ucc.product.model.dto.ProductDTO;
 import com.ucc.product.model.mappers.ProductsMappers;
+import com.ucc.product.repository.CategoryRepository;
 import com.ucc.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,12 +25,14 @@ public class ProductService {
 
     private final ProductRepository productRepository; //Inyeccion del repositorio en nuestro servicio
     private final ProductsMappers productsMappers;
+    private final CategoryRepository categoryRepository;
 
-    //Metodo para obtener todos los productos guardados
+    //Metodo para obtener todos los productos guardados (entidad)
     public List<Product> getAllProducts() {
         return  productRepository.findAll();
     }
 
+    //Metodo para obtener todos los productos guardados (dto)
     public List<ProductInfoDTO> getAllInfoProducts(){
         return productRepository.findAll()
                 .stream()
@@ -45,18 +48,13 @@ public class ProductService {
         return productsMappers.productEntityToInfoDTO(product);
     }
 
-    /*public List<Product> getProductsByPriceDesc() {
-        return productRepository.findAllByOrderByPriceDesc();
-    }*/
-
+    //Metodo para obtener los productos ordenados por precio desc
     public List<ProductInfoDTO> getProductsByPriceDesc() {
         return productRepository.findAllByOrderByPriceDesc()
                 .stream()
                 .map(productsMappers::productEntityToInfoDTO)
                 .collect(Collectors.toList());
     }
-
-
 
     //Metodo para crear un producto con DTO con mapper
     public ResponseEntity<Void> newProduct(ProductDTO productDTO) {
@@ -75,6 +73,10 @@ public class ProductService {
         product.setDescription(dto.getDescription());
         product.setStock(dto.getStock());
 
+        Category category = categoryRepository.findById(dto.getCategoryDTO().getId())
+                .orElseThrow(() -> new CategoryNotExistException("No existe la categoría con ID " + dto.getCategoryDTO()));
+        product.setCategory(category);
+
         return productRepository.save(product);
     }
 
@@ -87,6 +89,7 @@ public class ProductService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    //Metodo para descontar el stock
     public void discountStock(Long productId, int quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotExistException("No existe el producto con ID " + productId));
@@ -99,13 +102,13 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    //Metodo para incrementar el stock
     public void increaseStock(Long id, int quantity) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotExistException("Producto no encontrado"));
         product.setStock(product.getStock() + quantity);
         productRepository.save(product);
     }
-
 
 
 }

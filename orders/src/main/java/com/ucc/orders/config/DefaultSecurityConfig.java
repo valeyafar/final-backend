@@ -40,7 +40,6 @@ public class DefaultSecurityConfig {
     //Configuracion de la autenticacion en memoria
     @Bean
     public UserDetailsService userDetailsService() {
-        //Crear un usuario en memoria
         UserDetails user = User.builder()
                 .username("user")
                 .password(passwordEncoder().encode("1234"))
